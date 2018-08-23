@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [ "$(id -u)" -ne 0 ]; then
+	exec sudo "$0" "$@"
+fi
+
+function createTab() {
+	$TMUX setenv -g -t $NAME HISTFILE "/dev/null"
+	$TMUX set-option mouse on
+	$TMUX new-window -n monitor-"$(basename "$1")"
+	$TMUX send-keys -t $NAME "python -m serial.tools.miniterm '$1' 115200" Enter
+}
+
+function getUsbTty() {
+	for sysdevpath in $(find /sys/bus/usb/devices/usb*/ -name dev); do
+		(
+		syspath="${sysdevpath%/dev}"
+		devname="$(udevadm info -q name -p $syspath)"
+		[[ "$devname" != "ttyUSB"* ]] && continue
+		eval "$(udevadm info -q property --export -p $syspath)"
+		[[ -z "$ID_SERIAL" ]] && continue
+
+		if echo "$ID_SERIAL" | grep -q "CP2105" ; then
+			createTab "/dev/$devname"
+		fi
+		)
+	done
+}
+
+mkdir -p /var/run/my-tmux
+TMUX="tmux -S /var/run/tmux-port"
+NAME=usb-serial
+
+if ! $TMUX has-session -t $NAME &>/dev/null ; then
+	$TMUX -2 new-session -d -s $NAME
+	getUsbTty
+	$TMUX kill-window -t 0
+fi
+$TMUX attach-session -t $NAME
+

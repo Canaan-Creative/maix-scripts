@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo '当前有以下用户连接：'
+echo -ne '  \e[32m'
+echo $(who | awk '{print $1}' | awk '{!seen[$0]++};END{for(i in seen) print i}')
+echo -e '\e[0m'
+echo
+

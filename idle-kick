@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function uniq() {
+	awk '{!seen[$0]++};END{for(i in seen) print i}'
+}
+
+OUTDATED=($(idle | uniq))
+
+for N in "${OUTDATED[@]}"
+do
+	echo "kick $N" >&2
+	kick $N "你因为[闲置30分钟]被系统踢出。"
+done
+

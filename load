@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BIT="$HOME/MAIX.bit"
+if [ ! -e "$BIT" ]; then
+	echo "错误：文件“$BIT”不存在，复制一个到这里，注意文件名大小写。">&2
+	exit 1
+fi
+
+ocdocker -k &>/dev/null
+
+export TERM="xterm"
+
+exec /home/share/bitstream/load.sh "$BIT"
+

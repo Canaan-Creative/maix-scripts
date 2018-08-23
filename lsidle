@@ -1,0 +1,32 @@
+#!/bin/bash
+
+CURRENT="$(date +%s)"
+
+declare -A NOT_TIMEOUT_LIST
+
+function calc () {
+	local UNAME="$1"
+	local DEV="/dev/$2"
+	
+	local LAST_ACC="$(stat -c "%X" "$DEV")"
+	local IDLE="$(( $CURRENT - $LAST_ACC ))"
+	
+	if [ -z "${NOT_TIMEOUT_LIST[$UNAME]}" ] || [ "${NOT_TIMEOUT_LIST[$UNAME]}" -gt "$IDLE" ]; then
+		NOT_TIMEOUT_LIST[$UNAME]="$IDLE"
+	fi
+}
+
+WHO="$(who -s | grep 'pts/')"
+USER_LIST=($(echo "$WHO" | awk '{print $1}'))
+PTS_LIST=($(echo "$WHO" | awk '{print $2}'))
+
+for I in "${!PTS_LIST[@]}"
+do
+	calc "${USER_LIST[$I]}" "${PTS_LIST[$I]}"
+done
+
+for USER in "${!NOT_TIMEOUT_LIST[@]}"
+do
+	echo -e " * ${USER}:\t${NOT_TIMEOUT_LIST[$USER]}s" >&2
+done
+

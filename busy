@@ -1,0 +1,43 @@
+#!/bin/bash
+
+CURRENT="$(date +%s)"
+
+declare -A NOT_TIMEOUT_LIST
+
+SECONDS="${1-1800}"
+
+TTY=/bin/false
+if [ -t 1 ] && [ -t 0 ] ; then
+	TTY=/bin/true
+fi
+
+function calc () {
+	local UNAME="$1"
+	local DEV="/dev/$2"
+	
+	local LAST_ACC="$(stat -c "%X" "$DEV")"
+	local IDLE="$(( $CURRENT - $LAST_ACC ))"
+	
+	$TTY && echo -n "$UNAME: ${IDLE} > ${SECONDS} ? :" >&2
+	if [ "${IDLE}" -le "${SECONDS}" ]; then
+		$TTY && echo "not timeout" >&2
+		NOT_TIMEOUT_LIST[$UNAME]="yes"
+	else
+		$TTY && echo "timeout" >&2
+	fi
+}
+
+WHO="$(who -s | grep 'pts/')"
+USER_LIST=($(echo "$WHO" | awk '{print $1}'))
+PTS_LIST=($(echo "$WHO" | awk '{print $2}'))
+
+for I in "${!PTS_LIST[@]}"
+do
+	calc "${USER_LIST[$I]}" "${PTS_LIST[$I]}"
+done
+
+for USER in "${!NOT_TIMEOUT_LIST[@]}"
+do
+	echo "$USER"
+done
+

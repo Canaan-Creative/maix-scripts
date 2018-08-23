@@ -1,0 +1,24 @@
+#!/bin/bash
+
+DOCKER_PS_LINE=$(sudo docker ps | awk '{print $1" "$2" "$NF}' | grep ' riscv')
+DOCKER_CONTAINER=$(echo "${DOCKER_PS_LINE}" | awk '{print $1}')
+if [ -z "${DOCKER_CONTAINER}" ]; then
+	echo "Error: container not started.">&2
+	exit 1
+fi
+
+echo "Running docker: $DOCKER_PS_LINE"
+
+SCRIPT=(-c "killall -q openocd ; openocd -f /home/openocd.cfg $*")
+if echo "$*" | grep -q -- "-t" ; then
+	SCRIPT=(--login -i)
+fi
+if echo "$*" | grep -q -- "-k" ; then
+	SCRIPT=(-c "killall -sigkill -q openocd")
+fi
+
+NAME_REF="$(echo ${DOCKER_PS_LINE} | awk '{print $NF}')"
+
+set -x
+sudo docker exec -e "CURRENT_USER=$USER" -e "NAME=${NAME_REF}" -it "${DOCKER_CONTAINER}" /bin/bash "${SCRIPT[@]}"
+

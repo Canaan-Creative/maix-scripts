@@ -1,0 +1,26 @@
+#!/bin/bash
+
+TARGET=$1
+MESSAGE="${2-没有留下信息}"
+
+KILL_ARG="-SIGTERM"
+
+
+if [ -z "$TARGET" ]; then
+	echo -e "\n\e[38;5;9mUsage:\n\t$0 <target_user_name> [-SIGTERM]\e[0m\n" >&2
+	exit 1
+fi
+
+if [ "$TARGET" = "root" ]; then
+	echo -e "\n\e[38;5;9mDo not kick root\e[0m\n" >&2
+	exit 1
+fi
+
+function uniq() {
+	awk '{!seen[$0]++};END{for(i in seen) print i}'
+}
+
+who | grep "^$TARGET" | awk '{print $2}' | uniq | xargs -I F bash -c "echo -e '\n\n  ☢ You have been kicked by ${USER}. ☢\n\n${MESSAGE}\n' | sudo tee /dev/F >/dev/null"
+
+who | grep "^$TARGET" | awk '{print $1" "$2}' | uniq | xargs -n2 bash -c 'ps -au "$1" | grep "$2"' '{}' | awk '{print $1}' | sudo -u "$TARGET" xargs kill $KILL_ARG
+

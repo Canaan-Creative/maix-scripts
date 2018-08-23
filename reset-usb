@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+	echo "Usage: $0 'name of device'"
+	exit 1
+fi
+
+for X in /sys/bus/usb/devices/*; do
+	prod="$(cat "$X/product" 2>/dev/null)"
+	if [ -z "$prod" ]; then
+		continue
+	fi
+	if echo "$prod" | grep -q -i "$*" ; then
+		echo "[$X] $prod"
+		sudo sh -c "echo 0 > '$X/authorized'"
+		sudo sh -c "echo 1 > '$X/authorized'"
+	fi
+done

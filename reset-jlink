@@ -1,0 +1,12 @@
+#!/bin/bash
+for X in /sys/bus/usb/devices/*; do
+	prod="$(cat "$X/product" 2>/dev/null)"
+	if [ -z "$prod" ]; then
+		continue
+	fi
+	if echo "$prod" | grep -q -i "j-link" ; then
+		echo "[$X] $prod"
+		sudo sh -c "echo 0 > '$X/authorized'"
+		sudo sh -c "echo 1 > '$X/authorized'"
+	fi
+done

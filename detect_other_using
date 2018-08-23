@@ -1,0 +1,4 @@
+#!/bin/bash
+
+busy | grep -v "$(whoami)" | head -1
+
