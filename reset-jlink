@@ -1,4 +1,9 @@
 #!/bin/bash
+
+###
+# 软重置 j-link 设备，类似于重新拔插（但不同）
+###
+
 for X in /sys/bus/usb/devices/*; do
 	prod="$(cat "$X/product" 2>/dev/null)"
 	if [ -z "$prod" ]; then

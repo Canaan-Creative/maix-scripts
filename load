@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###
+# 刷位流，被刷的文件要复制到 $HOME/MAIX.bit
+###
+
 BIT="$HOME/MAIX.bit"
 if [ ! -e "$BIT" ]; then
 	echo "错误：文件“$BIT”不存在，复制一个到这里，注意文件名大小写。">&2

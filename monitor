@@ -1,8 +1,16 @@
 #!/bin/bash
 
+###
+# 在tmux里打开所有ttyUSB的监视器
+# 参数1（可选）：部分匹配设备的全名，默认=CP2105
+###
+
 if [ "$(id -u)" -ne 0 ]; then
 	exec sudo "$0" "$@"
 fi
+
+NAME_INCLUDE="${1-CP2105}"
+
 
 function createTab() {
 	$TMUX setenv -g -t $NAME HISTFILE "/dev/null"
@@ -20,7 +28,7 @@ function getUsbTty() {
 		eval "$(udevadm info -q property --export -p $syspath)"
 		[[ -z "$ID_SERIAL" ]] && continue
 
-		if echo "$ID_SERIAL" | grep -q "CP2105" ; then
+		if echo "$ID_SERIAL" | grep -q "${NAME_INCLUDE}" ; then
 			createTab "/dev/$devname"
 		fi
 		)

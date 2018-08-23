@@ -1,5 +1,9 @@
 #!/bin/bash
 
+###
+# 列出所有用户和他们的闲置时间
+###
+
 CURRENT="$(date +%s)"
 
 declare -A NOT_TIMEOUT_LIST

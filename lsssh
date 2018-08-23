@@ -1,5 +1,9 @@
 #!/bin/sh
 
+###
+# 列出所有连接的用户（注：终端连接的用户也会列出，不只是SSH用户）
+###
+
 echo '当前有以下用户连接：'
 echo -ne '  \e[32m'
 echo $(who | awk '{print $1}' | awk '{!seen[$0]++};END{for(i in seen) print i}')

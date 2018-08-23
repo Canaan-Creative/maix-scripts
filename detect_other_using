@@ -1,4 +1,9 @@
 #!/bin/bash
 
-busy | grep -v "$(whoami)" | head -1
+###
+# 输出最近2分钟活动过的用户名（只输出其中一个，随机输出）
+# 自己除外
+###
+
+busy 120 | grep -v "$(whoami)" | head -1
 

@@ -13,7 +13,7 @@ cd "$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
 chmod a+x ./*
 for i in ./*
 do
-	if [ "$i" = "./install.sh" ] ; then
+	if [ "$i" = "./install.sh" ] || [ "$i" = "./LICENSE" ] ; then
 		continue
 	fi
 	cp -v "$i" /home/share/bin

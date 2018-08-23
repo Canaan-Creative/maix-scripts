@@ -1,5 +1,13 @@
 #!/bin/bash
 
+###
+# 启动docker里默认的ocd，docker必须提前建好且在运行
+# 这个操作会杀掉其他ocd程序
+# 参数1（可选）：
+#            -t 在docker里运行bash，而不是ocd
+#            -k 只杀掉所有ocd，不启动自己的
+###
+
 DOCKER_PS_LINE=$(sudo docker ps | awk '{print $1" "$2" "$NF}' | grep ' riscv')
 DOCKER_CONTAINER=$(echo "${DOCKER_PS_LINE}" | awk '{print $1}')
 if [ -z "${DOCKER_CONTAINER}" ]; then
@@ -9,7 +17,13 @@ fi
 
 echo "Running docker: $DOCKER_PS_LINE"
 
-SCRIPT=(-c "killall -q openocd ; openocd -f /home/openocd.cfg $*")
+USING="$(detect_other_using)"
+if [ -n "${USING}" ] ; then
+	echo -e "用户 \e[38;5;14m${USING}\e[0m 近2分钟还在使用设备，先让他退出。"
+	exit 1
+fi
+
+SCRIPT=(-c "killall -sigkill -q openocd ; openocd -f /home/openocd.cfg $*")
 if echo "$*" | grep -q -- "-t" ; then
 	SCRIPT=(--login -i)
 fi

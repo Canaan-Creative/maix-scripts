@@ -1,9 +1,19 @@
 #!/bin/bash
 
+###
+# 强制踢出某用户的所有会话
+# 参数1：用户名
+# 参数2：踢之前发消息给他
+# 参数3（可选）：关闭进程用的信号（默认是sigterm）
+#     还可以用 
+#            sighup - 相当于用户自己退出
+#            sigkill - 强制杀死进程
+###
+
 TARGET=$1
 MESSAGE="${2-没有留下信息}"
 
-KILL_ARG="-SIGTERM"
+KILL_ARG="-${3-SIGTERM}"
 
 
 if [ -z "$TARGET" ]; then

@@ -1,10 +1,14 @@
 #!/bin/bash
 
+###
+# 强制踢出空闲超过半小时的人
+###
+
 function uniq() {
 	awk '{!seen[$0]++};END{for(i in seen) print i}'
 }
 
-OUTDATED=($(idle | uniq))
+OUTDATED=($(idle 1800 | uniq))
 
 for N in "${OUTDATED[@]}"
 do

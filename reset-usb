@@ -1,5 +1,11 @@
 #!/bin/bash
 
+###
+# 这个脚本比较危险
+# 重置usb设备
+# 参数1：部分匹配设备名
+###
+
 if [ -z "$1" ]; then
 	echo "Usage: $0 'name of device'"
 	exit 1
